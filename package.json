@@ -1,0 +1,13 @@
+{
+  "name": "node-express",
+  "version": "1.0.0",
+  "description": "my first node and express app",
+  "main": "server.js",
+  "author": "Rakesh.P.Rao",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-handlebars": "^5.1.0",
+    "mongoose": "^5.9.25"
+  }
+}
