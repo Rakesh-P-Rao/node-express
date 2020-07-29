@@ -13,9 +13,14 @@ const mongoose = require("mongoose");
 const exphbs = require("express-handlebars");
 
 
-//// installation steps for middleware :----
+//// installation steps for middleware :----    create folder view => create home.handlebars & layout folder => create main.handlebars in layout folder
 app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
+
+
+//// serve static assests 
+app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/node_modules"));
 
 
 //// connect database
@@ -33,6 +38,7 @@ app.get("/", (req, res) => {
     //res.send("app is ready!");
     res.render("./home.handlebars");
 });
+
 // listen port
 let port = 2700;
 
@@ -40,6 +46,18 @@ app.listen(port, (err) => {
     if (err) throw err;
     console.log("express server is running on port number" + port);
 });
+
+//// ALL GET REQUEST  (@HTTP METHODS ARE GET,POST,PUT,DELETE)  (BASIC ROUTING)
+app.get("/login", (req, res) => {
+    res.render("./auth/login");
+});
+app.get("/register", (req, res) => {
+    res.render("./auth/register");
+});
+app.get("/add-profile", (req, res) => {
+  res.render("./profiles/addprofile-form");
+});
+
 
 
 
@@ -73,7 +91,7 @@ app.listen(port, (err) => {
 // app.use(express.static);  // to serve static folder and files like  frontend, html, css, image
 // app.use(express.json);  // payloads, json req.body  
 // app.use(express.urlencoded({ extended: true }));
-  //// example for built in middlware
+  // example for built in middlware
 // app.use(express.static(__dirname + "/public"));  // connecting public folder
 // const port = 4000;
 // app.listen(port, (err) => {
