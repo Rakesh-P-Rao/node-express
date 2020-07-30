@@ -11,11 +11,20 @@ const app = express();
 const mongoose = require("mongoose");
 // express handlebars 
 const exphbs = require("express-handlebars");
+// body parser 
+const bodyParser = require("body-parser");
+
+//// Import Profile Schema
+require("./views/Model/Profile");
+let Profile = mongoose.model("profile");
 
 
-//// installation steps for middleware :----    create folder view => create home.handlebars & layout folder => create main.handlebars in layout folder
+//// MIDDLEWARE     installation steps for middleware :----    create folder view => create home.handlebars & layout folder => create main.handlebars in layout folder
 app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
+// bodyparser middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //// serve static assests 
@@ -36,9 +45,15 @@ mongoose.connect(mongodb_url, { useNewUrlParser: true, useUnifiedTopology: true 
 // basic route
 app.get("/", (req, res) => {
     //res.send("app is ready!");
-    res.render("./home.handlebars");
+    //res.render("./home.handlebars");
+    //// fetch data from database
+      Profile.find({})
+        .lean()
+        .then((profile) => {
+          res.render("./home", { profile });
+        })
+        .catch((err) => console.log(err));
 });
-
 // listen port
 let port = 2700;
 
@@ -46,6 +61,7 @@ app.listen(port, (err) => {
     if (err) throw err;
     console.log("express server is running on port number" + port);
 });
+
 
 //// ALL GET REQUEST  (@HTTP METHODS ARE GET,POST,PUT,DELETE)  (BASIC ROUTING)
 app.get("/login", (req, res) => {
@@ -57,6 +73,50 @@ app.get("/register", (req, res) => {
 app.get("/add-profile", (req, res) => {
   res.render("./profiles/addprofile-form");
 });
+
+
+//// ALL POST REQUEST 
+app.post("/create-profile", (req, res) => {
+    //console.log(req.body);
+    //res.send("now we got an information from server");
+    const { firstname, lastname, phone } = req.body;
+    let errors = [];
+    if (!firstname) {
+        errors.push({ text: "Firstname is Required!" });
+    }
+    if (!lastname) {
+        errors.push({ text: "Lastname is Required!" });
+    }
+    if (!phone) {
+        errors.push({ text: "phone is Required!" });
+    }
+    if (errors.length > 0) {
+        res.render("./profiles/addprofile-form", {
+            // this is a object but in es6 if key and value are same then no need to write key like (firstname:firstname) ,also as it is destructed above to req.body
+            errors,
+            firstname,
+            lastname,
+            phone,
+        });
+    } else {
+        let newProfiles = {
+            firstname,
+            lastname,
+            phone,
+        };
+        //// store into database
+        new Profile(newProfiles)
+            .save()
+            .then((profile) => {
+                res.redirect("/", 201, { profile });
+            })
+            .catch((err) => console.log(err));
+    }
+});
+    //console.log(req.body);
+    //     new Profile() = res.send(
+    //     "successfully submitted will get back to you"
+    // );
 
 
 
